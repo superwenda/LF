@@ -8,4 +8,7 @@ cmake_minimum_required (VERSION 3.8)
 add_library(calib_grid "calib_grid.cpp")
 add_executable (LFCameraCalib "LFCameraCalib.cpp")
 target_link_libraries(LFCameraCalib ${OpenCV_LIBS} ${MICROVIEW_LIBS} calib_grid)
+
+add_executable (LFCalibGrid "LFCalibGrid.cpp")
+target_link_libraries(LFCalibGrid ${OpenCV_LIBS} ${MICROVIEW_LIBS} common)
 # TODO: 如有需要，请添加测试并安装目标。
