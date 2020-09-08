@@ -1,0 +1,7 @@
+from cv2 import cv2
+import numpy as np
+src1 = np.array([[x, x+1, 1] for x in range(100)], np.float64)
+src2 = np.array([[x+1, x+2] for x in range(100)], np.float64)
+ret, A = cv2.solve(src1, src2, flags=cv2.DECOMP_SVD)
+print(A)
+print(np.matmul(src1[0:10], A))
