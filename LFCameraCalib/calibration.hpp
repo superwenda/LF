@@ -52,9 +52,8 @@ namespace anakin
         if (centers.empty())
         {
             std::cerr << __FILE__ << "(" << __LINE__ << "): centers.empty()==true\n";
-            return cv::Mat();
+            return cv::Mat::zeros(2,3,CV_64F);
         }
-        size_t items_num = centers.size();
         struct Aperture
         {
             Aperture(PType p_, int row_, int col_):p(p_), row(row_), col(col_){}
@@ -65,6 +64,8 @@ namespace anakin
             estimate_dist = EstimateAverageDist(centers);
         std::sort(centers.begin(), centers.end(), [](const PType &a, const PType &b) { return (a.x + a.y) > (b.x + b.y); });
         cv::Mat A, B;
+        int items_num = 0;
+
         std::queue<Aperture> q;
         q.push(Aperture(centers.back(), 0, 0));
         centers.pop_back();
@@ -72,6 +73,7 @@ namespace anakin
         {
             Aperture aper = q.front();
             q.pop();
+            items_num++;
 
             A.push_back(static_cast<double>(aper.col));
             A.push_back(static_cast<double>(aper.row));
@@ -81,7 +83,7 @@ namespace anakin
 
             for (auto it = centers.begin(); it != centers.end();)
             {
-                int dir = IsNeighbor(aper.p, *it, estimate_dist, 25);
+                int dir = IsNeighbor(aper.p, *it, estimate_dist, estimate_dist*0.25);
                 switch (dir)
                 {
                 case 0:
@@ -123,7 +125,7 @@ namespace anakin
         {
             std::cerr << e.what() << '\n';
             std::cerr << items_num << "\n" << A.size << "\n" << B.size << "\n";
-            return cv::Mat();
+            return cv::Mat::zeros(2,3,CV_64F);
         }
         
         cv::Mat Matrix;

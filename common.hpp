@@ -16,9 +16,13 @@ public:
     DWORD Close();
     DWORD StartCapture();
     DWORD StopCapture();
-    DWORD SetExposure(int exposure);
-    DWORD SetGain(int gain);
+    DWORD SetExposure(DWORD exposure);
+    DWORD GetExposure(DWORD &exposure);
+    DWORD SetGain(DWORD gain);
+    DWORD GetGain(DWORD &gain);
     DWORD SetGamma(float gamma);
+
+    DWORD AutoWhiteBalance();
 
     static UINT StreamHook(WORD wHWCardNo, MVCFRAMEINFO m_FrameInfo, PVOID pUserData)
     {
@@ -28,6 +32,13 @@ public:
 
 private:
     int m_iDevNo;
+};
+
+template <typename T>
+class ThreadPool
+{
+public:
+    ThreadPool() { CreateSemaphore(NULL, 0, 3, NULL); }
 };
 
 #endif //COMMON_INCLUDE_HPP

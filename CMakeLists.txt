@@ -28,5 +28,5 @@ add_subdirectory ("LFDisparity")
 add_subdirectory ("LFRendering")
 add_subdirectory ("testapi")
 
-add_library(common "common.cpp")
-target_link_libraries(common ${MICROVIEW_LIBS})
+add_library(common "common.cpp" "camera_gui.cpp")
+target_link_libraries(common ${MICROVIEW_LIBS} ${OpenCV_LIBS})

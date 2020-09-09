@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include "camera_gui.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -10,12 +10,11 @@
 #include "calibration.hpp"
 
 namespace chrono = std::chrono;
-class Processor : public MVCCamera
+class Processor : public MVCCameraGUI
 {
 public:
-    Processor() : left(70), right(70), top(60), bottom(90), medianBlurSize(7), blockSize(31), C(1), openOpBlockSize(13)
+    Processor() : left(70), right(70), top(60), bottom(90), medianBlurSize(7), blockSize(31), C(1), openOpBlockSize(13) //, m_Exposure(3431), m_Gain(100)
     {
-        cv::namedWindow("Parameter");
         cv::namedWindow("Process");
         cv::createTrackbar("medianBlurSize", "Parameter", &medianBlurSize, 60);
         cv::createTrackbar("blockSize", "Parameter", &blockSize, 60);
@@ -26,6 +25,7 @@ public:
         cv::createTrackbar("right", "Parameter", &right, 100);
         cv::createTrackbar("top", "Parameter", &top, 100);
         cv::createTrackbar("bottom", "Parameter", &bottom, 100);
+
     }
     virtual ~Processor() {}
     virtual UINT Process(MVCFRAMEINFO &m_FrameInfo)
@@ -65,7 +65,6 @@ public:
         int ratio = m_BinaryGray.cols / 800;
         cv::Size sz(m_BinaryGray.cols / ratio, m_BinaryGray.rows / ratio);
         cv::resize(m_BinaryGray, viewImage, sz);
-        // cv::cvtColor(viewImage, viewImage, cv::COLOR_GRAY2BGR);
         cv::imshow("Process", viewImage);
     }
 
@@ -100,30 +99,42 @@ public:
         m_Mutex.lock();
         m_BGR.copyTo(viewImage);
         m_Mutex.unlock();
-
-        cv::Mat GridMatrix = anakin::DetectGridMatrix(m_Centers);
-        std::cout << "Grid Matrix: " << GridMatrix << "\n";
-        for (int row = 0;; ++row)
+        double est_dist = anakin::EstimateAverageDist(m_Centers);
+        m_GridMatrix = anakin::DetectGridMatrix(m_Centers, est_dist);
+        std::cout << "Grid Matrix: " << m_GridMatrix << "\n";
+        for (int row = -2;; ++row)
         {
             int col;
-            for (col = 0;; ++col)
+            for (col = -1;; ++col)
             {
-                cv::Mat m = (cv::Mat_<double>(1, 3) << col, row, 1) * GridMatrix;
+                cv::Mat m = (cv::Mat_<double>(1, 3) << col, row, 1) * m_GridMatrix;
                 cv::Point point((int)m.at<double>(0), (int)m.at<double>(1));
-                if (point.inside(cv::Rect2i(0, 0, m_Gray.cols, m_Gray.rows)))
+                cv::Rect ran(cv::Point(left, top), cv::Point(m_Gray.cols - right, m_Gray.rows - bottom));
+                // cv::Rect ran(0, 0, m_Gray.cols, m_Gray.rows);
+                if (point.inside(ran))
                 {
-                    cv::circle(viewImage, point, 10, cv::Scalar(255, 255, 0), 5);
+                    cv::circle(viewImage, point, est_dist / 2, cv::Scalar(255, 255, 0), 5);
                 }
-                else
+                else if (col >= 0)
                     break;
             }
-            if (col == 0)
+            if (row > 0 && col == 0)
                 break;
         }
         int ratio = viewImage.cols / 800;
         cv::Size sz(viewImage.cols / ratio, viewImage.rows / ratio);
         cv::resize(viewImage, viewImage, sz);
         cv::imshow("Process", viewImage);
+    }
+
+    void SaveGridMatrix()
+    {
+        cv::FileStorage fs("calibration.yaml", cv::FileStorage::WRITE);
+        
+        fs << "ImageWidth" << m_BGR.cols;
+        fs << "ImageHeight" << m_BGR.rows;
+        fs << "GridMatrix" << m_GridMatrix;
+        
     }
 
 private:
@@ -141,10 +152,12 @@ private:
 
     cv::Mat m_Raw, m_BGR, m_Gray, m_BinaryGray;
     std::vector<cv::Point2d> m_Centers;
+    cv::Mat m_GridMatrix;
 
     int medianBlurSize, blockSize, C, openOpBlockSize;
     int left, right, top, bottom;
     std::mutex m_Mutex;
+
 };
 
 bool isOk = true;
@@ -182,6 +195,15 @@ int main()
         {
             dynamic_cast<Processor *>(&*pCamera)->CalibGridMatrix();
         }
+        else if (key == 's')
+        {
+            dynamic_cast<Processor *>(&*pCamera)->SaveGridMatrix();
+        }
+        else if (key == 'f')
+        {
+            dynamic_cast<Processor *>(&*pCamera)->FlushCameraParam();
+        }
+        
     }
 
     pCamera->StopCapture();

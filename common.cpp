@@ -37,17 +37,34 @@ DWORD MVCCamera::StopCapture()
 {
     return MVC_DisableCapture(m_iDevNo);
 }
-DWORD MVCCamera::SetExposure(int exposure)
+DWORD MVCCamera::SetExposure(DWORD exposure)
 {
     return MVC_SetParameter(m_iDevNo, MVCADJ_INTTIME, exposure);
 }
-DWORD MVCCamera::SetGain(int gain)
+
+DWORD MVCCamera::GetExposure(DWORD &exposure)
 {
-    return MVC_SetParameter(m_iDevNo, MVCADJ_DACGAIN, gain);
+    return MVC_GetParameterEx(m_iDevNo, MVCADJ_INTTIME, &exposure);
 }
+
+DWORD MVCCamera::SetGain(DWORD gain)
+{
+    return MVC_SetParameter(m_iDevNo, MVCADJ_OUTGAIN, gain);
+}
+
+DWORD MVCCamera::GetGain(DWORD &gain)
+{
+    return MVC_GetParameterEx(m_iDevNo, MVCADJ_OUTGAIN, &gain);
+}
+
 DWORD MVCCamera::SetGamma(float gamma)
 {
     return MVC_SetGammaValue(m_iDevNo, gamma, true);
+}
+
+DWORD MVCCamera::AutoWhiteBalance()
+{
+    return MVC_AutoWhiteBalance(m_iDevNo);
 }
 
 void MVCCamera::PrintDevices()
