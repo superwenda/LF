@@ -99,8 +99,8 @@ public:
         m_Mutex.lock();
         m_BGR.copyTo(viewImage);
         m_Mutex.unlock();
-        double est_dist = anakin::EstimateAverageDist(m_Centers);
-        m_GridMatrix = anakin::DetectGridMatrix(m_Centers, est_dist);
+        m_EstLensDist = anakin::EstimateAverageDist(m_Centers);
+        m_GridMatrix = anakin::DetectGridMatrix(m_Centers, m_EstLensDist);
         std::cout << "Grid Matrix: " << m_GridMatrix << "\n";
         for (int row = -2;; ++row)
         {
@@ -113,7 +113,7 @@ public:
                 // cv::Rect ran(0, 0, m_Gray.cols, m_Gray.rows);
                 if (point.inside(ran))
                 {
-                    cv::circle(viewImage, point, est_dist / 2, cv::Scalar(255, 255, 0), 5);
+                    cv::circle(viewImage, point, m_EstLensDist / 2, cv::Scalar(255, 255, 0), 5);
                 }
                 else if (col >= 0)
                     break;
@@ -133,8 +133,8 @@ public:
         
         fs << "ImageWidth" << m_BGR.cols;
         fs << "ImageHeight" << m_BGR.rows;
+        fs << "Diameter" << m_EstLensDist;
         fs << "GridMatrix" << m_GridMatrix;
-        
     }
 
 private:
@@ -153,6 +153,7 @@ private:
     cv::Mat m_Raw, m_BGR, m_Gray, m_BinaryGray;
     std::vector<cv::Point2d> m_Centers;
     cv::Mat m_GridMatrix;
+    double m_EstLensDist;
 
     int medianBlurSize, blockSize, C, openOpBlockSize;
     int left, right, top, bottom;
@@ -202,6 +203,10 @@ int main()
         else if (key == 'f')
         {
             dynamic_cast<Processor *>(&*pCamera)->FlushCameraParam();
+        }
+        else if (key == 'b')
+        {
+            std::cout << dynamic_cast<Processor *>(&*pCamera)->AutoWhiteBalance() << "\n";
         }
         
     }

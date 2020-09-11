@@ -23,6 +23,7 @@ DWORD MVCCamera::Open(int card_no)
     using namespace std::placeholders;
     MVC_SetNetPacketSize(m_iDevNo, 1440);
     MVC_OpenDevice(m_iDevNo);
+    std::cout << "Camera color type: " << MVC_GetParameter(m_iDevNo, MVCADJ_COLORMODE) << "\n";
     return MVC_SetStreamHOOK(m_iDevNo, MVCCamera::StreamHook, this);
 }
 DWORD MVCCamera::Close()
@@ -76,6 +77,6 @@ void MVCCamera::PrintDevices()
         MVC_GetDeviceInfoEx(i, &DevInfoEx);
         std::stringstream ss;
         ss << i << ":";
-        std::cout << std::setw(3) << ss.str() << DevInfoEx.DevIP << " " << DevInfoEx.DevMAC << "\n";
+        std::cout << std::setw(3) << std::left << ss.str() << DevInfoEx.DevIP << " " << DevInfoEx.DevMAC << "\n";
     }
 }
