@@ -1,6 +1,10 @@
 
 #add_compile_options("-O3")
-add_compile_options("--std=c++11")
+
+add_library(render "render.cpp")
+
+add_executable(LFRender "LFRender.cpp")
+target_link_libraries(LFRender  ${OpenCV_LIBS} ${MICROVIEW_LIBS} common)
 
 add_executable(LFRendering "LFRendering.cpp")
 target_link_libraries(LFRendering  ${OpenCV_LIBS} ${MICROVIEW_LIBS})
