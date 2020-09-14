@@ -284,7 +284,7 @@ void LFRefocus(const cv::Mat& src_img, cv::Mat& dst_img, const cv::Mat& GridMatr
 
 void RenderingTask(cv::Mat* src_img)
 {
-	std::string calib_path = "D:/workspace/LF/LFCameraCalib/camera_calibration.yaml";
+	std::string calib_path = "camera_calibration.yaml";
 
 	cv::FileStorage calib_config(calib_path, cv::FileStorage::READ);
 	cv::Mat GridMatrix;
