@@ -25,7 +25,7 @@ int main()
             cv::Rect ran(0, 0, raw.cols, raw.rows);
             if (point.inside(ran))
             {
-                cv::circle(raw, point, diameter / 2, cv::Scalar(255, 255, 0), 1);
+                cv::circle(raw, point, diameter / 2, cv::Scalar(255, 255, 0), 4);
             }
             else if (col >= 0)
                 break;
@@ -48,7 +48,7 @@ int main()
             cv::Rect ran(0, 0, rend.cols, rend.rows);
             if (point.inside(ran))
             {
-                cv::circle(rend, point, diameter / 2., cv::Scalar(255, 255, 0), 1);
+                cv::circle(rend, point, diameter / 2., cv::Scalar(255, 255, 0), 4);
             }
             else if (col >= 0)
                 break;
@@ -56,13 +56,13 @@ int main()
         if (row > 0 && col == 0)
             break;
     }
-    // int ratio = raw.cols / 900;
-    // cv::Size sz(raw.cols / ratio, raw.rows / ratio);
-    // cv::resize(raw, raw, sz);
+    int ratio = raw.cols / 900;
+    cv::Size sz(raw.cols / ratio, raw.rows / ratio);
+    cv::resize(raw, raw, sz);
 
-    // ratio = rend.cols / 600;
-    // sz = cv::Size(rend.cols / ratio, rend.rows / ratio);
-    // cv::resize(rend, rend, sz);
+    ratio = rend.cols / 900;
+    sz = cv::Size(rend.cols / ratio, rend.rows / ratio);
+    cv::resize(rend, rend, sz);
 
     cv::imshow("Raw", raw);
     cv::imshow("rend", rend);
