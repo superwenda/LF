@@ -198,6 +198,7 @@ int main()
         }
         else if (key == 's')
         {
+            std::cout << "Save calibration result\n";
             dynamic_cast<Processor *>(&*pCamera)->SaveGridMatrix();
         }
         else if (key == 'f')
