@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("LFCameraCalib")
 
-SET(MICROVIEW_DIR "D:/lib/Microview/SDKAPI")
+set(MICROVIEW_DIR "D:/lib/Microview/SDKAPI")
 find_package(MICROVIEW)
 include_directories(${MICROVIEW_INCLUDE_DIRS})
 
@@ -16,8 +16,9 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR})
 
 # add_definitions(-DUNICODE -D_UNICODE)
-ADD_DEFINITIONS(-D_AFXDLL)#如果使用动态库的MFC，则加上_AFXDLL
-# SET(CMAKE_MFC_FLAG 1)
+#ADD_DEFINITIONS(-D_AFXDLL)#如果使用动态库的MFC，则加上_AFXDLL
+add_definitions(/MT)
+set(CMAKE_MFC_FLAG 1)
 
 # include_directories("D:/lib/LF/include")
 # link_directories("D:/lib/LF/lib")
