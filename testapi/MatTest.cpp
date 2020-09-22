@@ -11,4 +11,6 @@ int main()
     m = (cv::Mat_<double>(1,1)<<1.6);
     m.convertTo(m, CV_32S);
     std::cout << m <<"\n";
+
+    std::cout << (-1000 & 0x7FFFFFFF % 256) << "\n";
 }

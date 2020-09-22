@@ -1,19 +1,31 @@
 #include "camera_gui.hpp"
 #include <opencv2/opencv.hpp>
 #include <signal.h>
+#include "render.hpp"
 
 namespace chrono = std::chrono;
 
 class Processor: public MVCCameraGUI
 {
 public:
-    Processor(): m_Zoom(1.0), m_Aperture(1.0)
+    const int ZOOM_MAX = 300;
+    Processor(const std::string &calib_file): m_Zoom(1.0), m_Aperture(1.0), tmpZoom(100)
     {
-        cv::createTrackbar("Zoom", "Parameter", &tmpZoom, 200);
+        cv::createTrackbar("Zoom", "Parameter", &tmpZoom, ZOOM_MAX);
         cv::createTrackbar("Aperture", "Parameter", &tmpAperture, 10);
+
+        cv::FileStorage fs(calib_file, cv::FileStorage::READ);
+        cv::Mat grid_matrix;
+        int width, height;
+        double diameter;
         
+        fs["ImageWidth"] >> width;
+        fs["ImageHeight"] >> height;
+        fs["Diameter"] >> diameter;
+        fs["GridMatrix"] >> grid_matrix;
+        m_pRender = std::shared_ptr<anakin::Render>(new anakin::Render(grid_matrix, width, height, diameter, 0.5));
     }
-    ~Processor()
+    virtual ~Processor()
     {
         
     }
@@ -28,10 +40,10 @@ public:
         m_Mutex.lock();
         cv::cvtColor(m_Raw, m_BGR, cv::COLOR_BayerGB2BGR);
         m_Mutex.unlock();
-
-        int ratio = m_BGR.cols / 900;
-        cv::Size sz(m_BGR.cols / ratio, m_BGR.rows / ratio);
-        cv::resize(m_BGR, img_bgr, sz);
+        img_bgr = m_pRender->render(m_BGR, static_cast<double>(tmpZoom)/100, 0.5, 0, 0);
+        int ratio = img_bgr.cols / 900;
+        cv::Size sz(img_bgr.cols / ratio, img_bgr.rows / ratio);
+        cv::resize(img_bgr, img_bgr, sz);
         cv::imshow("Raw", img_bgr);
         cv::waitKey(1);
         return 0ul;
@@ -58,6 +70,8 @@ private:
 
     double m_Zoom, m_Aperture, m_HOffset, m_VOffset;
     int tmpZoom, tmpAperture, tmpHOffset, tmpVOffset;
+
+    std::shared_ptr<anakin::Render> m_pRender;
 };
 
 bool isOk = true;
@@ -71,7 +85,7 @@ int main()
 {
     signal(SIGINT, onSig);
     std::string cmd;
-    Processor p;
+    Processor p("calibration.yaml");
     p.LoadCalibParam("calibration.yaml");
 
     p.PrintDevices();
