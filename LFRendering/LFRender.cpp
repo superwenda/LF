@@ -5,20 +5,23 @@
 
 namespace chrono = std::chrono;
 
-class Processor: public MVCCameraGUI
+class Processor : public MVCCameraGUI
 {
 public:
     const int ZOOM_MAX = 300;
-    Processor(const std::string &calib_file): m_Zoom(1.0), m_Aperture(1.0), tmpZoom(100)
+    const int SHIFT_LMT = 3;
+    Processor(const std::string &calib_file) : m_Zoom(1.0), m_Aperture(1.0), tmpZoom(100), tmpAperture(5), tmpHOffset(SHIFT_LMT), tmpVOffset(SHIFT_LMT)
     {
         cv::createTrackbar("Zoom", "Parameter", &tmpZoom, ZOOM_MAX);
         cv::createTrackbar("Aperture", "Parameter", &tmpAperture, 10);
+        cv::createTrackbar("HOffset", "Parameter", &tmpHOffset, SHIFT_LMT * 2);
+        cv::createTrackbar("VOffset", "Parameter", &tmpVOffset, SHIFT_LMT * 2);
 
         cv::FileStorage fs(calib_file, cv::FileStorage::READ);
         cv::Mat grid_matrix;
         int width, height;
         double diameter;
-        
+
         fs["ImageWidth"] >> width;
         fs["ImageHeight"] >> height;
         fs["Diameter"] >> diameter;
@@ -27,7 +30,6 @@ public:
     }
     virtual ~Processor()
     {
-        
     }
     virtual UINT Process(MVCFRAMEINFO &m_FrameInfo)
     {
@@ -40,7 +42,7 @@ public:
         m_Mutex.lock();
         cv::cvtColor(m_Raw, m_BGR, cv::COLOR_BayerGB2BGR);
         m_Mutex.unlock();
-        img_bgr = m_pRender->render(m_BGR, static_cast<double>(tmpZoom)/100, 0.5, 0, 0);
+        img_bgr = m_pRender->render(m_BGR, static_cast<double>(tmpZoom) / 100, tmpAperture / 10., (tmpHOffset - SHIFT_LMT) / static_cast<double>(SHIFT_LMT), (tmpVOffset - SHIFT_LMT) / static_cast<double>(SHIFT_LMT));
         int ratio = img_bgr.cols / 900;
         cv::Size sz(img_bgr.cols / ratio, img_bgr.rows / ratio);
         cv::resize(img_bgr, img_bgr, sz);
@@ -58,8 +60,6 @@ public:
         std::cout << "[" << m_CalibImageWidth << " x " << m_CalibImageHeight << "]\n";
         std::cout << m_GridMatrix << "\n";
     }
-
-    
 
 private:
     cv::Mat m_GridMatrix;
@@ -85,8 +85,7 @@ int main()
 {
     signal(SIGINT, onSig);
     std::string cmd;
-    Processor p("calibration.yaml");
-    p.LoadCalibParam("calibration.yaml");
+    Processor p("D:/workspace/LF/calibration.yaml");
 
     p.PrintDevices();
     p.Open(0);

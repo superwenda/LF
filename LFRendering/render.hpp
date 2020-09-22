@@ -12,7 +12,10 @@ namespace anakin
         int m_iWidth, m_iHeight;
         double m_Diameter;
         double m_Ratio;
-        std::vector<cv::Point2d> m_SrcCenters, m_DstCenters;
+        std::vector<cv::Point2f> m_SrcCenters, m_DstCenters;
+        double m_Zoom, m_Aperture, m_HOffset, m_VOffset;
+        cv::Mat m_MapX = cv::Mat::zeros(m_iHeight * m_Ratio, m_iWidth *m_Ratio, CV_32FC1);
+        cv::Mat m_MapY = cv::Mat::zeros(m_iHeight * m_Ratio, m_iWidth *m_Ratio, CV_32FC1);
 
     public:
         Render() = delete;
