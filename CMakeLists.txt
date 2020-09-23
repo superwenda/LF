@@ -20,6 +20,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_definitions(/MT)
 set(CMAKE_MFC_FLAG 1)
 
+add_compile_options(/openmp)
+
 # include_directories("D:/lib/LF/include")
 # link_directories("D:/lib/LF/lib")
 
