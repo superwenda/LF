@@ -21,6 +21,9 @@ public:
     DWORD SetGain(DWORD gain);
     DWORD GetGain(DWORD &gain);
     DWORD SetGamma(float gamma);
+    DWORD SetWidth(DWORD width);
+    DWORD SetHeight(DWORD height);
+
 
     DWORD AutoWhiteBalance();
 

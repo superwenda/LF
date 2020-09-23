@@ -68,6 +68,15 @@ DWORD MVCCamera::AutoWhiteBalance()
     return MVC_AutoWhiteBalance(m_iDevNo);
 }
 
+DWORD MVCCamera::SetWidth(DWORD width)
+{
+    return MVC_SetParameter(m_iDevNo, MVCADJ_WIDTH, width);
+}
+DWORD MVCCamera::SetHeight(DWORD height)
+{
+    return MVC_SetParameter(m_iDevNo, MVCADJ_HEIGHT, height);
+}
+
 void MVCCamera::PrintDevices()
 {
     int n = MVC_GetDeviceNumber();
