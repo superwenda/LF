@@ -26,6 +26,12 @@ public:
         fs["ImageHeight"] >> height;
         fs["Diameter"] >> diameter;
         fs["GridMatrix"] >> grid_matrix;
+
+        fs["ImageWidth"] >> m_CalibImageWidth;
+        fs["ImageHeight"] >> m_CalibImageHeight;
+        fs["Diameter"] >> m_CalibDiameter;
+        fs["GridMatrix"] >> m_GridMatrix;
+
         m_pRender = std::shared_ptr<anakin::Render>(new anakin::Render(grid_matrix, width, height, diameter, 0.5));
     }
     virtual ~Processor()
@@ -51,19 +57,10 @@ public:
         return 0ul;
     }
 
-    void LoadCalibParam(const std::string &config)
-    {
-        cv::FileStorage fs(config, cv::FileStorage::READ);
-        fs["ImageWidth"] >> m_CalibImageWidth;
-        fs["ImageHeight"] >> m_CalibImageHeight;
-        fs["GridMatrix"] >> m_GridMatrix;
-        std::cout << "[" << m_CalibImageWidth << " x " << m_CalibImageHeight << "]\n";
-        std::cout << m_GridMatrix << "\n";
-    }
-
 private:
     cv::Mat m_GridMatrix;
     int m_CalibImageWidth, m_CalibImageHeight;
+    double m_CalibDiameter;
 
     cv::Mat m_Raw, m_BGR, m_Gray, m_BinaryGray;
     std::mutex m_Mutex;
