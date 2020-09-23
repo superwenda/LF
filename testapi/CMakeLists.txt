@@ -10,3 +10,9 @@ target_link_libraries(MatTest ${OpenCV_LIBS})
 
 add_executable(RenderCenterTest "RenderCenterTest.cpp")
 target_link_libraries(RenderCenterTest ${OpenCV_LIBS})
+
+
+add_executable(OMPTest "OMPTest.cpp")
+
+add_executable(RXImageGenerator "RXImageGenerator.cpp")
+target_link_libraries(RXImageGenerator ${OpenCV_LIBS})
