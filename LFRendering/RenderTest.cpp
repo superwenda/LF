@@ -4,7 +4,7 @@
 #include <cmath>
 int main(int argc, char *argv[])
 {
-    cv::FileStorage fs("D:/workspace/LF/calibration.yaml", cv::FileStorage::READ);
+    cv::FileStorage fs("D:/lib/Microview/BIN64/calibration.yaml", cv::FileStorage::READ);
     cv::Mat grid_matrix;
     int height, width;
     double diameter;
