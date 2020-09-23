@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include "render.hpp"
+#include <omp.h>
 
 namespace anakin
 {
@@ -53,8 +54,8 @@ namespace anakin
         cv::Point2f shift_center(aper_radius * (1. / aperture - 1) * hoffset, aper_radius * (1. / aperture - 1) * voffset);
 
         double render_range = m_Diameter * m_Ratio;
+        std::chrono::time_point<std::chrono::steady_clock> tp_begin = std::chrono::steady_clock::now();
 
-        cv::Point2f rel_dst_point, dst_point, src_point;
         if (zoom != m_Zoom || aperture != m_Aperture || hoffset != m_HOffset || voffset != m_VOffset)
         {
             m_MapX = static_cast<float>(-1.);
@@ -69,8 +70,10 @@ namespace anakin
             {
                 for (int c = -render_range; c <= render_range; ++c)
                 {
+                    #pragma omp parallel for
                     for (int n = 0; n < m_SrcCenters.size(); ++n)
                     {
+                        cv::Point2f rel_dst_point, dst_point, src_point;
                         rel_dst_point.x = c;
                         rel_dst_point.y = r;
                         dst_point = m_DstCenters[n] + shift_center + rel_dst_point;
@@ -91,7 +94,10 @@ namespace anakin
                 }
             }
         }
+        std::chrono::time_point<std::chrono::steady_clock> tp_end = std::chrono::steady_clock::now();
+        std::cout << "Remap cost: " << std::chrono::duration_cast<std::chrono::milliseconds>(tp_end - tp_begin).count() << " millisceond(s)\n";
         cv::remap(src_image, dst_image, m_MapX, m_MapY, cv::InterpolationFlags::INTER_CUBIC);
+
         return dst_image;
     }
     /*
