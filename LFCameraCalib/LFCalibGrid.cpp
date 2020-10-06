@@ -133,7 +133,7 @@ public:
         
         fs << "ImageWidth" << m_BGR.cols;
         fs << "ImageHeight" << m_BGR.rows;
-        fs << "Diameter" << m_EstLensDist;
+        fs << "Diameter" << (cv::norm(m_GridMatrix.row(0)) + cv::norm(m_GridMatrix.row(1))) / 2;
         fs << "GridMatrix" << m_GridMatrix;
     }
 

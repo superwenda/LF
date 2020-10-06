@@ -130,6 +130,15 @@ namespace anakin
         
         cv::Mat Matrix;
         cv::solve(A, B, Matrix, cv::DECOMP_SVD);
+        
+        double diameter = (cv::norm(Matrix.row(0)) + cv::norm(Matrix.row(1))) / 2.;
+        Matrix.at<double>(0, 0) = (Matrix.at<double>(0, 0) +
+                   std::sqrt(diameter * diameter - Matrix.at<double>(1, 0) * Matrix.at<double>(1, 0)) +
+                   std::sqrt(diameter * diameter - Matrix.at<double>(0, 1) * Matrix.at<double>(0, 1)) +
+                   Matrix.at<double>(1, 1)) / 4;
+        Matrix.at<double>(0, 1) = std::sqrt(diameter * diameter - Matrix.at<double>(0, 0) * Matrix.at<double>(0, 0));
+        Matrix.at<double>(1, 0) = -Matrix.at<double>(0, 1);
+        Matrix.at<double>(1, 1) = Matrix.at<double>(0, 0);
         return Matrix;
     }
 
